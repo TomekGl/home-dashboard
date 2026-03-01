@@ -1,0 +1,7 @@
+.git
+.github
+prompt.md
+README.md
+
+# config.json is injected at runtime via volume mount
+conf/

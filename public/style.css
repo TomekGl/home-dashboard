@@ -1,0 +1,204 @@
+/* ── Reset & base ─────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #f0f2f5;
+  --surface:   #ffffff;
+  --border:    #e2e5ea;
+  --text:      #1a1d23;
+  --text-muted:#6b7280;
+  --accent:    #2563eb;
+  --value:     #111827;
+  --radius:    12px;
+  --shadow:    0 1px 4px rgba(0,0,0,.08), 0 4px 16px rgba(0,0,0,.06);
+  --ctrl-bg:   rgba(255,255,255,.85);
+  --ctrl-hover:#f3f4f6;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:        #0d1117;
+    --surface:   #161b22;
+    --border:    #30363d;
+    --text:      #e6edf3;
+    --text-muted:#8b949e;
+    --accent:    #58a6ff;
+    --value:     #f0f6fc;
+    --ctrl-bg:   rgba(22,27,34,.90);
+    --ctrl-hover:#21262d;
+    --shadow:    0 1px 4px rgba(0,0,0,.4), 0 4px 16px rgba(0,0,0,.3);
+  }
+}
+
+html, body {
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Header ───────────────────────────────────────────────── */
+header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  background: var(--ctrl-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+
+header h1 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -.02em;
+}
+
+/* ── Controls (top-right) ─────────────────────────────────── */
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+#last-updated {
+  font-size: .72rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  margin-right: 4px;
+}
+
+.controls button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background .15s, color .15s;
+}
+
+.controls button:hover {
+  background: var(--ctrl-hover);
+  color: var(--text);
+}
+
+.controls button svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+/* ── Dashboard grid ───────────────────────────────────────── */
+#dashboard {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+  padding: 20px;
+  /* safe area insets for iOS */
+  padding-bottom: max(20px, env(safe-area-inset-bottom));
+  padding-left:  max(20px, env(safe-area-inset-left));
+  padding-right: max(20px, env(safe-area-inset-right));
+}
+
+/* ── Box / Card ───────────────────────────────────────────── */
+.box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.box-title {
+  font-size: .75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--text-muted);
+  padding: 10px 14px 6px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* ── Metric row ───────────────────────────────────────────── */
+.metric-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 10px 14px;
+  gap: 8px;
+}
+
+.metric-row + .metric-row {
+  border-top: 1px solid var(--border);
+}
+
+.metric-label {
+  font-size: .85rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 0 1 auto;
+}
+
+.metric-value-wrap {
+  display: flex;
+  align-items: baseline;
+  gap: 3px;
+  flex-shrink: 0;
+}
+
+.metric-value {
+  font-size: 1.45rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--value);
+  letter-spacing: -.03em;
+  line-height: 1;
+}
+
+.metric-unit {
+  font-size: .8rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* error / loading states */
+.metric-value.error { color: #f85149; font-size: 1rem; }
+.metric-value.pending { color: var(--text-muted); }
+
+/* ── Loading / error states ───────────────────────────────── */
+.loading, .error-msg {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-muted);
+  font-size: .95rem;
+}
+
+.error-msg { color: #f85149; }
+
+/* ── Paused indicator ─────────────────────────────────────── */
+body.paused header::after {
+  content: "PAUSED";
+  font-size: .65rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  color: #d29922;
+  background: rgba(210,153,34,.15);
+  border: 1px solid rgba(210,153,34,.3);
+  border-radius: 4px;
+  padding: 2px 6px;
+  margin-left: 8px;
+}
