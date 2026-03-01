@@ -4,6 +4,8 @@
 let config = null;
 let paused = false;
 let timerId = null;
+let countdownId = null;
+let nextRefreshAt = 0;
 
 // ── DOM refs ───────────────────────────────────────────────────────────────
 const dashboard    = document.getElementById('dashboard');
@@ -23,9 +25,18 @@ function fmt(value, scale) {
   return n.toFixed(2);
 }
 
-function tsNow() {
-  const d = new Date();
-  return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+// ── Countdown display ──────────────────────────────────────────────────────
+function startCountdown() {
+  stopCountdown();
+  countdownId = setInterval(() => {
+    const remaining = (nextRefreshAt - Date.now()) / 1000;
+    lastUpdated.textContent = remaining > 0 ? `${remaining.toFixed(1)}s` : '';
+  }, 100);
+}
+
+function stopCountdown() {
+  if (countdownId) { clearInterval(countdownId); countdownId = null; }
+  lastUpdated.textContent = '';
 }
 
 // ── Victoria Metrics query ─────────────────────────────────────────────────
@@ -95,7 +106,8 @@ async function refresh() {
     })
   );
 
-  lastUpdated.textContent = tsNow();
+  const interval = config?.refresh?.interval ?? 1000;
+  nextRefreshAt = Date.now() + interval;
 }
 
 // ── Pause / resume ─────────────────────────────────────────────────────────
@@ -110,8 +122,10 @@ function setPaused(val) {
   if (paused) {
     clearInterval(timerId);
     timerId = null;
+    stopCountdown();
   } else {
     startTimer();
+    startCountdown();
   }
 }
 
@@ -134,13 +148,13 @@ async function init() {
   renderSkeleton();
   await refresh();
   startTimer();
+  startCountdown();
 }
 
 // ── Event listeners ────────────────────────────────────────────────────────
 btnPause.addEventListener('click', () => setPaused(!paused));
 
 btnRefresh.addEventListener('click', () => {
-  // Spin the icon briefly
   btnRefresh.style.transition = 'transform .5s';
   btnRefresh.style.transform  = 'rotate(360deg)';
   setTimeout(() => {
@@ -148,6 +162,12 @@ btnRefresh.addEventListener('click', () => {
     btnRefresh.style.transform  = '';
   }, 500);
   refresh();
+  if (!paused) {
+    // Restart the interval so it fires 1s after this manual refresh
+    clearInterval(timerId);
+    startTimer();
+    startCountdown();
+  }
 });
 
 // ── Start ──────────────────────────────────────────────────────────────────

@@ -46,7 +46,10 @@ header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 20px;
+  /* Push content below the iOS status bar in standalone mode */
+  padding: max(12px, env(safe-area-inset-top)) 20px 12px;
+  padding-right: max(20px, env(safe-area-inset-right));
+  padding-left:  max(20px, env(safe-area-inset-left));
   background: var(--ctrl-bg);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -68,10 +71,18 @@ header h1 {
 }
 
 #last-updated {
-  font-size: .72rem;
-  color: var(--text-muted);
+  font-size: .75rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  font-family: ui-monospace, monospace;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  border-radius: 6px;
+  padding: 2px 7px;
   white-space: nowrap;
-  margin-right: 4px;
+  min-width: 4.5ch;
+  text-align: center;
 }
 
 .controls button {
@@ -188,6 +199,8 @@ header h1 {
 }
 
 .error-msg { color: #f85149; }
+
+#last-updated:empty { display: none; }
 
 /* ── Paused indicator ─────────────────────────────────────── */
 body.paused header::after {
