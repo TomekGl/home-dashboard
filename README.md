@@ -34,10 +34,11 @@ The dashboard is just static files served by nginx.
 ├── nginx.conf           # nginx config
 ├── Dockerfile
 └── k8s/
-    ├── kustomization.yaml   # Generates ConfigMap from conf/config.json
+    ├── kustomization.yaml      # Generates ConfigMap from conf/config.json
     ├── deployment.yaml
     ├── service.yaml
-    └── ingress.yaml         # Optional, edit host/TLS
+    ├── ingress-middleware.yaml # Traefik ipAllowList (RFC-1918 only)
+    └── ingress.yaml            # TLS + host — edit before deploying
 ```
 
 ---
@@ -98,23 +99,25 @@ python3 -m http.server 8080 --directory public
 docker build -t home-dashboard:latest .
 
 # Test locally
-docker run --rm -p 8080:8080 home-dashboard:latest
+docker run --rm -p 8080:8080 -v $(pwd)/conf:/conf:ro home-dashboard:latest
 # → open http://localhost:8080
 ```
 
 ### Push to a registry
 
 ```bash
-docker tag home-dashboard:latest your-registry/home-dashboard:latest
-docker push your-registry/home-dashboard:latest
+docker tag home-dashboard:latest ghcr.io/tomekgl/home-dashboard:latest
+docker push ghcr.io/tomekgl/home-dashboard:latest
 ```
+
+The GitHub Actions workflow (`.github/workflows/build.yaml`) builds and pushes to GHCR automatically on every push to `master`.
 
 ---
 
 ## Kubernetes Deployment
 
 The k8s manifests use **Kustomize** (built into kubectl ≥ 1.14).
-The ConfigMap is generated from `public/config.json` — no duplicate content.
+The ConfigMap is generated from `conf/config.json` — no duplicate content.
 
 ### 1. Create namespace
 
@@ -129,9 +132,9 @@ local development and the Kubernetes ConfigMap.
 
 ### 3. Edit the Deployment image
 
-In `k8s/deployment.yaml`, update the image field:
+In `k8s/deployment.yaml`, set the image to the GHCR package:
 ```yaml
-image: your-registry/home-dashboard:latest
+image: ghcr.io/tomekgl/home-dashboard:latest
 ```
 
 ### 4. (Optional) Edit the Ingress
