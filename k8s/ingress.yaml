@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: home-dashboard
+  namespace: home-dashboard
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.middlewares: home-dashboard-internal-only@kubernetescrd
+    cert-manager.io/cluster-issuer: letsencrypt-prod   # adjust to your issuer
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - dashboard.home.example.com   # <-- change to your domain
+      secretName: home-dashboard-tls
+  rules:
+    - host: dashboard.home.example.com   # <-- change to your domain
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: home-dashboard
+                port:
+                  number: 80

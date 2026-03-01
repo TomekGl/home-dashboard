@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: home-dashboard
+  namespace: home-dashboard
+  labels:
+    app: home-dashboard
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: home-dashboard
+  template:
+    metadata:
+      labels:
+        app: home-dashboard
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 101   # nginx user in nginx:alpine
+        runAsGroup: 101
+        fsGroup: 101
+      containers:
+        - name: home-dashboard
+          image: your-registry/home-dashboard:latest   # <-- update this
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 1m
+              memory: 8Mi
+            limits:
+              cpu: 10m
+              memory: 16Mi
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 3
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 30
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false   # nginx writes to /tmp
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: config
+              mountPath: /conf
+              readOnly: true
+      volumes:
+        - name: config
+          configMap:
+            name: home-dashboard-config
