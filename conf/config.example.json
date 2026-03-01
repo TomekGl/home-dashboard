@@ -1,0 +1,33 @@
+{
+  "victoriaMetrics": {
+    "baseUrl": "http://victoria-metrics:8428"
+  },
+  "refresh": {
+    "interval": 1000
+  },
+  "boxes": [
+    {
+      "title": "Living Room",
+      "metrics": [
+        { "label": "Temperature", "query": "temperature{device=\"esp-living\",location=\"living\"}", "unit": "°C", "scale": 1 },
+        { "label": "Humidity",    "query": "humidity{device=\"esp-living\",location=\"living\"}",    "unit": "%",  "scale": 1 }
+      ]
+    },
+    {
+      "title": "Bedroom",
+      "metrics": [
+        { "label": "Temperature", "query": "last_over_time(temperature{device=\"bedroom\",source=\"zigbee2mqtt\"}[60m])", "unit": "°C", "scale": 1 },
+        { "label": "Humidity",    "query": "last_over_time(humidity{device=\"bedroom\",source=\"zigbee2mqtt\"}[60m])",    "unit": "%",  "scale": 1 }
+      ]
+    },
+    {
+      "title": "Power",
+      "metrics": [
+        { "label": "Total",   "query": "sum(power{device=\"energy\"})",                   "unit": "W", "scale": 1 },
+        { "label": "Phase 1", "query": "power{device=\"energy\",location=\"phase1\"}",    "unit": "W", "scale": 1 },
+        { "label": "Phase 2", "query": "power{device=\"energy\",location=\"phase2\"}",    "unit": "W", "scale": 1 },
+        { "label": "Phase 3", "query": "power{device=\"energy\",location=\"phase3\"}",    "unit": "W", "scale": 1 }
+      ]
+    }
+  ]
+}
